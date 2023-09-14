@@ -12,13 +12,19 @@
 // ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 // OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 use core::fmt::Write;
 
 use crate::Error;
 
 #[cfg(feature = "alloc")]
 use alloc::string::String;
+
+#[cfg(all(feature = "alloc", feature = "ip_in_core"))]
+use {alloc::string::ToString, core::net};
+
+#[cfg(feature = "std")]
+use std::net;
 
 const VALID_IP_BY_CONSTRUCTION: &str = "IP address is a valid string by construction";
 
@@ -129,7 +135,7 @@ impl<'a> IpAddrRef<'a> {
     }
 }
 
-#[cfg(feature = "std")]
+#[cfg(feature = "alloc")]
 fn ipv6_to_uncompressed_string(octets: [u8; 16]) -> String {
     let mut result = String::with_capacity(39);
     for i in 0..7 {
@@ -148,14 +154,12 @@ fn ipv6_to_uncompressed_string(octets: [u8; 16]) -> String {
     result
 }
 
-#[cfg(feature = "std")]
-impl From<std::net::IpAddr> for IpAddr {
-    fn from(ip_address: std::net::IpAddr) -> IpAddr {
+#[cfg(any(feature = "std", all(feature = "alloc", feature = "ip_in_core")))]
+impl From<net::IpAddr> for IpAddr {
+    fn from(ip_address: net::IpAddr) -> IpAddr {
         match ip_address {
-            std::net::IpAddr::V4(ip_address) => {
-                IpAddr::V4(ip_address.to_string(), ip_address.octets())
-            }
-            std::net::IpAddr::V6(ip_address) => IpAddr::V6(
+            net::IpAddr::V4(ip_address) => IpAddr::V4(ip_address.to_string(), ip_address.octets()),
+            net::IpAddr::V6(ip_address) => IpAddr::V6(
                 // We cannot rely on the Display implementation of
                 // std::net::Ipv6Addr given that it might return
                 // compressed IPv6 addresses if the address can be

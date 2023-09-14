@@ -26,6 +26,7 @@
 //! | `ring` | Enable use of the *ring* crate for cryptography. |
 
 #![cfg_attr(not(feature = "std"), no_std)]
+#![cfg_attr(feature = "ip_in_core", feature(ip_in_core))]
 #![warn(unreachable_pub)]
 #![deny(warnings, missing_docs, clippy::as_conversions)]
 #![allow(

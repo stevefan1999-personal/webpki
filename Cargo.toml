@@ -68,6 +68,7 @@ default = ["std", "ring"]
 ring = ["dep:ring"]
 alloc = ["ring?/alloc", "pki-types/alloc"]
 std = ["alloc"]
+ip_in_core = []
 
 [dependencies]
 pki-types = { package = "rustls-pki-types", version = "0.2.1", default-features = false }
